@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import MemberPicker, { useMemberId } from "@/components/MemberPicker";
+import { useMemberId } from "@/components/MemberPicker";
 import { apiFetch } from "@/lib/api-client";
-import { MAX_PHOTOS } from "@/lib/members";
+import { getMember, MAX_PHOTOS } from "@/lib/members";
 
 type MyPhoto = { id: string; slot: number; url: string };
 type MyPhotos = { uploadsOpen: boolean; photos: MyPhoto[] };
@@ -12,7 +12,7 @@ type MyPhotos = { uploadsOpen: boolean; photos: MyPhoto[] };
 type MyPhotosState = MyPhotos & { forMember: string };
 
 export default function UploadPage() {
-  const [memberId, setMemberId] = useMemberId();
+  const [memberId] = useMemberId();
   const [data, setData] = useState<MyPhotosState | null>(null);
   const [busySlot, setBusySlot] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -112,20 +112,22 @@ export default function UploadPage() {
         <h1 className="text-xl font-bold">上傳照片</h1>
       </header>
 
-      <div className="mt-5">
-        <MemberPicker
-          value={memberId}
-          onChange={(id) => {
-            setError(null);
-            setMemberId(id);
-          }}
-          label="我是誰"
-        />
-      </div>
-
       {!memberId && (
         <p className="mt-8 text-center text-slate-500">
-          先選擇你的名字，就可以上傳最多 {MAX_PHOTOS} 張照片。
+          請先
+          <Link href="/" className="mx-1 text-sky-600 underline">
+            回首頁
+          </Link>
+          選擇你的名字，就可以上傳最多 {MAX_PHOTOS} 張照片。
+        </p>
+      )}
+
+      {memberId && getMember(memberId) && (
+        <p className="mt-5 text-sm text-slate-500">
+          目前身份：{getMember(memberId)!.name}
+          <Link href="/" className="ml-2 text-sky-600 underline">
+            更換
+          </Link>
         </p>
       )}
 

@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import MemberPicker, { useMemberId } from "@/components/MemberPicker";
 import { apiFetch } from "@/lib/api-client";
+import { getMember } from "@/lib/members";
 
 type Wall = { uploadsOpen: boolean; votingOpen: boolean; photos: unknown[] };
 
@@ -19,7 +21,9 @@ function StatusChip({ label, open }: { label: string; open: boolean }) {
 }
 
 export default function HomePage() {
+  const [memberId, setMemberId] = useMemberId();
   const [wall, setWall] = useState<Wall | null>(null);
+  const member = memberId ? getMember(memberId) : undefined;
 
   useEffect(() => {
     apiFetch<Wall>("/api/photos")
@@ -55,19 +59,50 @@ export default function HomePage() {
         </div>
       )}
 
-      <div className="mt-10 flex flex-col gap-4">
-        <Link
-          href="/upload"
-          className="rounded-2xl bg-sky-600 px-6 py-5 text-center text-xl font-bold text-white shadow-lg shadow-sky-600/20 active:bg-sky-700"
-        >
-          📤 上傳照片
-        </Link>
-        <Link
-          href="/vote"
-          className="rounded-2xl bg-amber-500 px-6 py-5 text-center text-xl font-bold text-white shadow-lg shadow-amber-500/20 active:bg-amber-600"
-        >
-          🗳️ 我要投票
-        </Link>
+      <div className="mt-8">
+        <MemberPicker
+          value={memberId}
+          onChange={setMemberId}
+          label="我是誰"
+        />
+        {!memberId && (
+          <p className="mt-2 text-center text-sm text-slate-500">
+            請先選擇你的名字，才能上傳或投票。
+          </p>
+        )}
+        {member && (
+          <p className="mt-2 text-center text-sm text-emerald-600">
+            你好，{member.name}！
+          </p>
+        )}
+      </div>
+
+      <div className="mt-8 flex flex-col gap-4">
+        {memberId ? (
+          <>
+            <Link
+              href="/upload"
+              className="rounded-2xl bg-sky-600 px-6 py-5 text-center text-xl font-bold text-white shadow-lg shadow-sky-600/20 active:bg-sky-700"
+            >
+              📤 上傳照片
+            </Link>
+            <Link
+              href="/vote"
+              className="rounded-2xl bg-amber-500 px-6 py-5 text-center text-xl font-bold text-white shadow-lg shadow-amber-500/20 active:bg-amber-600"
+            >
+              🗳️ 我要投票
+            </Link>
+          </>
+        ) : (
+          <>
+            <span className="rounded-2xl bg-slate-200 px-6 py-5 text-center text-xl font-bold text-slate-400">
+              📤 上傳照片
+            </span>
+            <span className="rounded-2xl bg-slate-200 px-6 py-5 text-center text-xl font-bold text-slate-400">
+              🗳️ 我要投票
+            </span>
+          </>
+        )}
       </div>
 
       <footer className="mt-auto pt-12 text-center">

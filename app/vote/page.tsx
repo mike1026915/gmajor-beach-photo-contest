@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import MemberPicker, { useMemberId } from "@/components/MemberPicker";
+import { useMemberId } from "@/components/MemberPicker";
 import { apiFetch } from "@/lib/api-client";
-import { MAX_VOTES } from "@/lib/members";
+import { getMember, MAX_VOTES } from "@/lib/members";
 
 type WallPhoto = { id: string; url: string; mine: boolean };
 type Wall = { uploadsOpen: boolean; votingOpen: boolean; photos: WallPhoto[] };
@@ -12,7 +12,7 @@ type Wall = { uploadsOpen: boolean; votingOpen: boolean; photos: WallPhoto[] };
 type WallState = Wall & { forMember: string };
 
 export default function VotePage() {
-  const [memberId, setMemberId] = useMemberId();
+  const [memberId] = useMemberId();
   const [wall, setWall] = useState<WallState | null>(null);
   const [selected, setSelected] = useState<string[]>([]);
   const [saved, setSaved] = useState<string[]>([]);
@@ -98,24 +98,28 @@ export default function VotePage() {
         <h1 className="text-xl font-bold">我要投票</h1>
       </header>
 
-      <div className="mt-5">
-        <MemberPicker
-          value={memberId}
-          onChange={(id) => {
-            setMessage(null);
-            setMemberId(id);
-          }}
-          label="我是誰"
-        />
-        <p className="mt-2 text-xs text-slate-400">
-          選名字只是讓你之後可以改票；你投給誰不會公開，大家也看不到票數。
-        </p>
-      </div>
-
       {!memberId && (
         <p className="mt-8 text-center text-slate-500">
-          先選擇你的名字，就可以投給最喜歡的 {MAX_VOTES} 張照片。
+          請先
+          <Link href="/" className="mx-1 text-sky-600 underline">
+            回首頁
+          </Link>
+          選擇你的名字，就可以投給最喜歡的 {MAX_VOTES} 張照片。
         </p>
+      )}
+
+      {memberId && getMember(memberId) && (
+        <div className="mt-5">
+          <p className="text-sm text-slate-500">
+            目前身份：{getMember(memberId)!.name}
+            <Link href="/" className="ml-2 text-sky-600 underline">
+              更換
+            </Link>
+          </p>
+          <p className="mt-2 text-xs text-slate-400">
+            選名字只是讓你之後可以改票；你投給誰不會公開，大家也看不到票數。
+          </p>
+        </div>
       )}
 
       {memberId && view && !view.votingOpen && (

@@ -7,19 +7,27 @@ import { apiFetch } from "@/lib/api-client";
 const PASSWORD_HEADER = "x-admin-password";
 const STORAGE_KEY = "adminPassword";
 
+type VoteChoice = { memberName: string; slot: number };
+type VoteLogEntry = { voterName: string; votedFor: VoteChoice[] };
 type ResultRow = {
   id: string;
   url: string;
   memberName: string;
   slot: number;
   votes: number;
+  voters: string[];
 };
 type Results = {
   uploadsOpen: boolean;
   votingOpen: boolean;
   voterCount: number;
+  voteLog: VoteLogEntry[];
   results: ResultRow[];
 };
+
+function formatVoteChoice({ memberName, slot }: VoteChoice) {
+  return `${memberName}（第 ${slot} 張）`;
+}
 
 export default function AdminPage() {
   const [password, setPassword] = useState<string | null>(null);
@@ -216,6 +224,11 @@ export default function AdminPage() {
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{row.memberName}</p>
                     <p className="text-sm text-slate-500">第 {row.slot} 張</p>
+                    {row.voters.length > 0 && (
+                      <p className="mt-1 text-xs text-slate-400">
+                        投票者：{row.voters.join("、")}
+                      </p>
+                    )}
                   </div>
                   <span className="text-lg font-bold text-sky-600">
                     {row.votes} 票
@@ -228,6 +241,26 @@ export default function AdminPage() {
                   >
                     刪除
                   </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="mt-4 rounded-2xl bg-white p-4 shadow-sm">
+            <h2 className="font-bold">投票明細</h2>
+            <p className="mt-1 text-sm text-slate-500">每位團員投了哪些照片</p>
+
+            {data.voteLog.length === 0 && (
+              <p className="mt-4 text-center text-slate-500">還沒有人投票。</p>
+            )}
+
+            <ul className="mt-3 divide-y divide-slate-100">
+              {data.voteLog.map((entry) => (
+                <li key={entry.voterName} className="py-3">
+                  <p className="font-medium">{entry.voterName}</p>
+                  <p className="mt-1 text-sm text-slate-600">
+                    → {entry.votedFor.map(formatVoteChoice).join("、")}
+                  </p>
                 </li>
               ))}
             </ul>
