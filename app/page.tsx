@@ -45,7 +45,7 @@ export default function HomePage() {
         <h1 className="mt-3 text-3xl font-bold">漂亮一夏！</h1>
         <h1 className="mt-3 text-3xl font-bold">G大調福隆攝影比賽</h1>
         <p className="mt-2 text-slate-500">
-          上傳你的得意之作，投給最喜歡的照片！
+          上傳你的得意之作，選出攝影大師！
         </p>
       </div>
 
